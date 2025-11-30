@@ -332,27 +332,17 @@ ggplot() +
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ################################################################################
-######################### FUNKAR NÄSTA, SPARA IFALL DEN BEHÖVS! ############
-###############################################################################
+################### Manage detections outside lake 3D boundary #################
+################################################################################
+"""
+Note that this code was never used in the Master's thesis. Only explored when the 
+questions about validation errors occured. Detections outside the lake was removed,
+altough the code below would work to retain the data points. (Read thesis for more
+info.
+"""
 
-# Skapa ett SpatialPointsDataFrame från final_df
+# Create SpatialPointsDataFrame from final_df
 coordinates(date_subset) <- ~x+y
 
 # Extract cell values from the raster dataset where a temperature point is located
@@ -419,8 +409,8 @@ for (i in 1:nrow(date_subset)) {
     }
   }
 }
-# Spara den modifierade final_df data frame
-# write.csv(final_df, "din_fil_väg/final_df_modified.csv")
+
+
 
 
 
