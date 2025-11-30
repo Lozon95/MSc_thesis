@@ -152,37 +152,33 @@ df_land_hourly$`Solar radiation [W/m2]` <- df_land_hourly$ssrd/3600
 df_single_hourly$`Cloud coverage [%]` <- df_single_hourly$tcc * 100
 
 
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-######################## Wind and Pressure GRID creation TEST ##################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-# Anta att data är en DataFrame
-data <- df_land_hourly_without_filter  # Byt ut detta mot din DataFrame
 
-# Definiera gridets gränser och storlek
+################################################################################
+######################## Wind and Pressure GRID creation ASCII #################
+################################################################################
+
+
+data <- df_land_hourly_without_filter  
+
+# Define grid borders
 x_min <- min(data$X)
 x_max <- max(data$X)
 y_min <- min(data$Y)
 y_max <- max(data$Y)
-dx <- 9000  # Gridstorlek i meter (1 km)
+dx <- 9000  # Gridsize in meters 
 dy <- 9000
 
-# Skapa gridets koordinater
+# Create grid coordinates
 x_coords <- seq(x_min, x_max, by = dx)
 y_coords <- seq(y_min, y_max, by = dy)
 
 create_arcinfo_time_series_grid <- function(data, parameter, file_name, start_time, quantity1) {
-  # Extrahera unika tidssteg
+  # Extract unique timestamps
   time_steps <- sort(unique(data$valid_time))
   
-  # Skapa fil och skriv header
+  # Create file and write header
   file.create(file_name)
-  cat("### START OF HEADER\n### This file is created by Deltares\n### Additional comments\n", file = file_name, append = TRUE)
+  cat("### START OF HEADER\n### This file is created by Loa Andersson\n### Additional comments\n", file = file_name, append = TRUE)
   cat(sprintf("FileVersion     =    1.03\nfiletype        =    meteo_on_equidistant_grid\n"), file = file_name, append = TRUE)
   cat("NODATA_value    =    -9999.0\n", file = file_name, append = TRUE)
   cat(sprintf("n_cols          =    %d\nn_rows          =    %d\n", length(x_coords), length(y_coords)), file = file_name, append = TRUE)
@@ -193,12 +189,12 @@ create_arcinfo_time_series_grid <- function(data, parameter, file_name, start_ti
   cat(sprintf("quantity1       =    %s\nunit1           =    m s-1\n", quantity1), file = file_name, append = TRUE)
   cat("### END OF HEADER\n", file = file_name, append = TRUE)
   
-  # Skriv tidssteg och gridvärden
+  # Wirte timestamps and grid values 
   for (time in time_steps) {
-    # Filtrera data för ett specifikt tidssteg
+    # FIlter data on timestamp
     time_data <- data %>% filter(valid_time == time)
     
-    # Interpolera data till gridet
+    # Interpolate data onto grid
     interpolated <- interp(
       x = time_data$X,
       y = time_data$Y,
@@ -208,12 +204,12 @@ create_arcinfo_time_series_grid <- function(data, parameter, file_name, start_ti
       extrap = TRUE
     )
     
-    # Skriv tidssteg
+    # Write timestamps
     time_label <- as.POSIXct(time) - as.POSIXct(start_time, tz = "UTC")
     time_label <- as.numeric(difftime(as.POSIXct(time), as.POSIXct(start_time), units = "hours"))
     cat(sprintf("TIME = %d hours since %s\n", time_label, start_time), file = file_name, append = TRUE)
     
-    # Skriv interpolerade gridvärden
+    # Write interpolated data
     write.table(interpolated$z, file = file_name, append = TRUE, row.names = FALSE, col.names = FALSE, na = "-9999.0")
   }
   
@@ -221,24 +217,14 @@ create_arcinfo_time_series_grid <- function(data, parameter, file_name, start_ti
 }
 
 
-# Skapa tidsseriegrid för U10
+# Create time series for U10
 start_time <- "2023-01-01 00:00:00 +00:00"
 create_arcinfo_time_series_grid(data, parameter = "u10", file_name = "time_series_grid_u10.txt", start_time, quantity1 = "x_wind")
 
-# Upprepa för V10 och lufttryck
+# Repeat for V10 and air pressure
 create_arcinfo_time_series_grid(data, parameter = "v10", file_name = "time_series_grid_v10.txt", start_time, quantity1 = "y_wind")
 create_arcinfo_time_series_grid(data, parameter = "sp", file_name = "time_series_grid_sp.txt", start_time, quantity1 = "air_pressure")
 
-
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
-################################################################################
 
 
 ################################################################################
@@ -313,4 +299,5 @@ pressure_df <- pressure_df[, c("time_in_minutes", "Air pressure")]
 
 # Write
 write.csv(pressure_df, "D:\\EXAMENSARBETE!!\\Thesis_data\\ERA5_DATA\\Meterological_processed\\Sep\\sep_airpress.csv", row.names = FALSE, col.names = FALSE)
+
 
