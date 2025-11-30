@@ -367,8 +367,7 @@ p_interactive <- ggplotly(p)
 # show interactive plot
 p_interactive
 
-# NOTERA!!!! HYDROAOUSTIC_ID = 2 KORRESPONDERAR VÄL MED RECEIVER_ID 551102
-# 1 OCH RECEIVER_ID 487335, 487344, 487350, 487357
+
 ################################################################################
 ################# Convert transmitter coordinates to SWEREF99TM ################
 ################################################################################
@@ -378,3 +377,4 @@ p_interactive
 # extracted coordinates so correct coordinates gets assigned on correct row. 
 Receivers_2023$x <- st_coordinates(sf_df_sweref99tm)[,1]
 Receivers_2023$y <- st_coordinates(sf_df_sweref99tm)[,2]
+
